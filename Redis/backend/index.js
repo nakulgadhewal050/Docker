@@ -7,12 +7,13 @@ import connectDB from "./lib/db.js";
 import dns from "dns";
 import User from "./model/userModel.js";
 import Redis from "ioredis";
+import rateLimitter from "./middleware/ratelimit.js";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 app.use(express.json());
 
-const redis = new Redis(process.env.REDIS_URL);
+export const redis = new Redis(process.env.REDIS_URL);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
@@ -28,7 +29,7 @@ app.post("/create", async (req, res) => {
   return res.status(201).json(user);
 });
 
-app.get("/user", async (req, res) => {
+app.get("/user",rateLimitter, async (req, res) => {
   const user = await User.find({});
 
   return res.status(201).json(user);
