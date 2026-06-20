@@ -8,6 +8,8 @@ import dns from "dns";
 import User from "./model/userModel.js";
 import Redis from "ioredis";
 import rateLimitter from "./middleware/ratelimit.js";
+import sendEmail from "./lib/sendEmail.js";
+import emailQueue from "./BullMq/queue.js";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
@@ -26,6 +28,8 @@ app.post("/create", async (req, res) => {
     email,
     password,
   });
+  // await sendEmail()
+  await emailQueue.add("send email", {email})
   return res.status(201).json(user);
 });
 
